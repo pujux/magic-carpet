@@ -18,19 +18,21 @@
     <script src="https://unpkg.com/socket.io@4.7.2/client-dist/socket.io.min.js"></script>
     <script src="https://unpkg.com/geolib@3.3.4/lib/index.js"></script>
   </head>
-  <body class="h-screen w-screen">
+  <body class="h-screen w-screen text-[13px] leading-[19.5px] font-bold font-['Helvetica_Neue',_Arial,_Helvetica,_sans-serif]">
     <div id="map"></div>
 
-    <div
-      class="absolute text-[13px] leading-[19.5px] font-bold flex gap-4 font-['Helvetica_Neue',_Arial,_Helvetica,_sans-serif] bottom-2.5 left-2.5 z-[9999]"
-    >
+    <div class="absolute top-2.5 right-2.5 z-[9999] overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+      <p id="latLngDisplay" class="px-3 py-1.5 hidden font-mono"></p>
+    </div>
+
+    <div class="absolute flex gap-4 bottom-2.5 left-2.5 z-[9999]">
       <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
         <li>
-          <input type="checkbox" class="peer hidden" id="pauseSwitch" autocomplete="off" />
+          <input type="checkbox" class="peer hidden" id="lockPathSwitch" />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
-            for="pauseSwitch"
-            >Pause</label
+            for="lockPathSwitch"
+            >Lock Path</label
           >
         </li>
 
@@ -44,6 +46,15 @@
       </ul>
 
       <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+        <li>
+          <input type="checkbox" class="peer hidden" id="pauseSwitch" autocomplete="off" />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
+            for="pauseSwitch"
+            >Pause</label
+          >
+        </li>
+
         <li>
           <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice1" autocomplete="off" value="2.5" checked />
           <label
@@ -65,9 +76,18 @@
         <li>
           <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice3" autocomplete="off" value="25" />
           <label
-            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors"
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
             for="speedChoice3"
             >Drive</label
+          >
+        </li>
+
+        <li>
+          <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice4" autocomplete="off" value="0" />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors"
+            for="speedChoice4"
+            >Teleport</label
           >
         </li>
       </ul>
@@ -100,15 +120,22 @@
         </li>
       </ul>
 
-      <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
-        <li>
-          <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full border-r border-[#ccc]" id="saveRouteButton">Save Route</button>
-        </li>
+      <div class="relative">
+        <ul class="peer flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+          <li>
+            <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full border-r border-[#ccc]" id="saveRouteButton">Save Route</button>
+          </li>
 
-        <li>
-          <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full" id="loadRouteButton">Load Route</button>
-        </li>
-      </ul>
+          <li>
+            <div type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full" id="loadRouteButton">Load Route</div>
+          </li>
+        </ul>
+        <div
+          class="hidden w-full peer-has-[#loadRouteButton:hover]:block hover:block absolute px-1 py-1 overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded -right-full bottom-0"
+        >
+          <ul id="savedRoutesDisplay" class="flex flex-col gap-1"></ul>
+        </div>
+      </div>
     </div>
     <script src="index.js"></script>
   </body>

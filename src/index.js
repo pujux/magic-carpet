@@ -1,22 +1,33 @@
 const socket = io();
+let savedRoutes = {};
 
 /* Utility functions */
 
 const randomFactor = 0.2;
 const randomize = (x) => x * (1 + randomFactor * (Math.random() * 2 - 1)); // 20% random variation
 
-const getConfig = (key, fallback) => {
-  const value = localStorage.getItem(`${configPrefix}${key}`);
-  return value || (saveConfig(key, fallback), fallback);
+const getConfig = (key, fallback) => localStorage.getItem(`${configPrefix}${key}`) || (saveConfig(key, fallback), fallback);
+const saveConfig = (key, value) => localStorage.setItem(`${configPrefix}${key}`, value);
+
+const updateLatLngDisplay = (locationString) => {
+  const el = document.getElementById("latLngDisplay");
+  el.classList.remove("hidden");
+  el.innerHTML = locationString.replace(",", ", ");
 };
 
-const saveConfig = (key, value) => {
-  localStorage.setItem(`${configPrefix}${key}`, value);
+const updateSavedRoutesDisplay = () => {
+  const el = document.getElementById("savedRoutesDisplay");
+  el.innerHTML = Object.keys(savedRoutes)
+    .map((key) => `<li data-route-value="${key}" class="rounded hover:bg-[#f4f4f4] border px-2 py-1">${key}</li>`)
+    .join("");
+  document
+    .querySelectorAll("li[data-route-value]")
+    .forEach((element) => element.addEventListener("click", (e) => loadRoute(e.target.getAttribute("data-route-value"))));
 };
 
 /* Configuration */
 
-const configPrefix = "kinesis-";
+const configPrefix = "magic-carpet-";
 const maxZoom = 18;
 const tickInterval = 1000; // 1 second
 const initialCenter = L.latLng(getConfig("latitude", 53.338228), getConfig("longitude", -6.259323));
@@ -60,15 +71,30 @@ let stepIndex = 0;
 let speed = 2.5; // walking speed
 let routeMode = "off";
 let pause = false;
+let lockPath = false;
+
+/* Saved routes loading */
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    savedRoutes = JSON.parse(getConfig("routes", "{}"));
+  } catch (e) {
+    console.error(e);
+    savedRoutes = {};
+  } finally {
+    updateSavedRoutesDisplay();
+  }
+});
 
 /* Event listeners */
 
 document.getElementById("saveRouteButton").addEventListener("click", saveRoute);
-document.getElementById("loadRouteButton").addEventListener("click", loadRoute);
 document.getElementById("undoButton").addEventListener("click", deleteStep);
 document.getElementById("stopButton").addEventListener("click", clearSteps);
-document.getElementById("pauseSwitch").addEventListener("change", (e) => (pause = e.currentTarget.checked));
-document.getElementsByName("speedChoice").forEach((element) => element.addEventListener("click", () => (speed = element.value)));
+
+document.getElementById("pauseSwitch").addEventListener("change", (e) => (pause = !!e.currentTarget.checked));
+document.getElementById("lockPathSwitch").addEventListener("change", (e) => (lockPath = !!e.currentTarget.checked));
+
+document.getElementsByName("speedChoice").forEach((element) => element.addEventListener("click", () => (speed = parseFloat(element.value))));
 document.getElementsByName("routeModeChoice").forEach((element) => element.addEventListener("click", () => (routeMode = element.value)));
 
 map.on("click", addMarkerOrStep);
@@ -82,15 +108,17 @@ map.on("moveend", () => {
 /* Marker and path functions */
 
 function addMarkerOrStep({ latlng }) {
+  if (lockPath) return;
+
   // init main marker if it doesnt exist
   if (!marker) {
     marker = L.marker(latlng, { draggable: true });
     if (tryTeleport(latlng)) {
       marker.addTo(map);
-      marker.on("mousedown", (event) => (markerLastPos = event.latlng));
-      marker.on("mouseup", (event) => {
+      marker.on("mousedown", ({ latlng }) => (markerLastPos = latlng));
+      marker.on("mouseup", ({ latlng }) => {
         // check if user wants to teleport and reset marker if not
-        if (!tryTeleport(event.latlng)) {
+        if (!tryTeleport(latlng)) {
           marker.setLatLng(markerLastPos);
         }
       });
@@ -98,7 +126,12 @@ function addMarkerOrStep({ latlng }) {
       marker = null;
     }
   } else {
-    path.addLatLng(latlng);
+    // check if teleport mode is activated
+    if (speed === 0) {
+      tryTeleport(latlng);
+    } else {
+      path.addLatLng(latlng);
+    }
   }
 }
 
@@ -106,30 +139,38 @@ function tryTeleport(latlng) {
   const confirmTeleport = confirm("Teleport?");
   if (!confirmTeleport) return false;
 
+  sendLocation(latlng);
   marker.setLatLng(latlng); // teleport to location
   markerShadowPos = latlng;
-  sendLocation(latlng);
-  clearSteps();
   return true;
 }
 
 function sendLocation(latlng) {
-  const locationString = `${latlng.lat},${latlng.lng}`;
+  const locationString = `${latlng.lat.toFixed(15)},${latlng.lng.toFixed(15)}`;
+  updateLatLngDisplay(locationString);
   console.info(`Emitting location: ${locationString}`);
   socket.emit("location", locationString);
 }
 
 function saveRoute() {
-  const routeName = prompt("Route name");
+  let routeName = prompt("Route name");
   if (!routeName) return;
-  const pathLatLngs = path.getLatLngs();
-  saveConfig(`route-${routeName}`, JSON.stringify(pathLatLngs));
+  try {
+    let initialRouteName = routeName;
+    for (let i = 1; !!savedRoutes[routeName]; i++) {
+      routeName = `${initialRouteName} (${i})`;
+    }
+    savedRoutes[routeName] = path.getLatLngs();
+    saveConfig("routes", JSON.stringify(savedRoutes));
+    updateSavedRoutesDisplay();
+  } catch (e) {
+    console.error(e);
+  }
 }
 
-function loadRoute() {
-  const routeName = prompt("Route name");
+function loadRoute(routeName) {
   try {
-    const route = JSON.parse(getConfig(`route-${routeName}`));
+    const route = savedRoutes[routeName];
     clearSteps();
     path.setLatLngs(route);
   } catch (e) {
