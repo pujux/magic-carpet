@@ -4,12 +4,12 @@ Forked from [kinesis](https://github.com/Siyuanw/kinesis)
 
 Built with `pymobiledevice3` and `leaflet`.
 
-## Requirements
+## How to use
+
+#### Requirements
 
 - Python version **3.11.x**
 - iOS Device in [developer mode](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device)
-
-## Run
 
 It's recommended to use a [virtual environment](https://docs.python.org/3/tutorial/venv.html)
 
@@ -32,15 +32,15 @@ Start project
 sudo python3 src/main.py
 ```
 
-Browse [http://localhost:5000](http://localhost:5000)
+Browse [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-## TODO
+## Features
 
 - [x] Run with one-command
-- [ ] Better UI
-- [x] Randomized location
-- [x] Adjustable speed -> Choose between 3 speeds
-- [x] Randomized speed
-- [x] Closed path -> Use "loop" mode
-- [x] Persist zoom and center
+- [x] Choose between 3 speeds & teleport
+- [x] Location display
+- [x] Address search
+- [x] Realistic movement
+- [x] Different route modes (U-Turn, Loop)
+- [x] Persistent zoom and map center
 - [x] Saved routes
