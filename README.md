@@ -1,4 +1,6 @@
-# Kinesis - Location Spoofing for iOS 17
+# Magic Carpet - Location Spoofing for iOS 17
+
+Forked from [kinesis](https://github.com/Siyuanw/kinesis)
 
 Built with `pymobiledevice3` and `leaflet`.
 
@@ -30,7 +32,7 @@ Start project
 sudo python3 main.py
 ```
 
-Browse [http://localhost:3000](http://localhost:3000)
+Browse [http://localhost:3000](http://localhost:5000)
 
 ## TODO
 
@@ -41,7 +43,4 @@ Browse [http://localhost:3000](http://localhost:3000)
 - [x] Randomized speed
 - [x] Closed path -> Use "loop" mode
 - [x] Persist zoom and center
-- [ ] OSRM Routing (?)
-- [ ] Saved route
-- [ ] ~~Electron~~ (why bother)
-- [ ] ~~Get out of vanilla js before it's too late~~  (why bother)
+- [x] Saved routes

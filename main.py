@@ -1,4 +1,7 @@
+from multiprocessing import Process
+
 from cryptography.hazmat.primitives.asymmetric import rsa
+
 from pymobiledevice3.cli.remote import get_device_list
 from pymobiledevice3.remote.core_device_tunnel_service import create_core_device_tunnel_service
 from pymobiledevice3.remote.remote_service_discovery import RemoteServiceDiscoveryService
@@ -7,80 +10,72 @@ from pymobiledevice3.services.dvt.instruments.location_simulation import Locatio
 
 import asyncio
 import eventlet
-import socketio
-from multiprocessing import Process
 import os
+import socketio
 
-
-def server(tunnel_host, tunnel_port):
+def setup_server(tunnel_host, tunnel_port):
     clients = {}
+    
     sio = socketio.Server(cors_allowed_origins='*')
+    app_dir = os.path.dirname(__file__)
+
     app = socketio.WSGIApp(sio, static_files={
-        '/': os.path.join(os.path.dirname(__file__), 'index.html'),
-        '/index.js': os.path.join(os.path.dirname(__file__), 'index.js'),
-        '/main.css': os.path.join(os.path.dirname(__file__), 'main.css'),
+        '/': os.path.join(app_dir, 'index.html'),
+        '/index.js': os.path.join(app_dir, 'index.js'),
     })
 
     @sio.event
-    def connect(sid, environ):
+    def connect(sid, _):
         rsd = RemoteServiceDiscoveryService((tunnel_host, tunnel_port))
         rsd.connect()
-        dvt = DvtSecureSocketProxyService(rsd)
-        dvt.perform_handshake()
-        loc = LocationSimulation(dvt)
-        clients[sid] = [rsd, loc]
+
+        dvt_proxy = DvtSecureSocketProxyService(rsd)
+        dvt_proxy.perform_handshake()
+        location_sim = LocationSimulation(dvt_proxy)
+
+        clients[sid] = [rsd, location_sim]
 
     @sio.event
     def location(sid, data):
-        la, lo = list(map(lambda x: float(x), data.split(',')))
-        clients[sid][1].simulate_location(la, lo)
+        lat, long = map(float, data.split(','))
+
+        clients[sid][1].simulate_location(lat, long)
 
     @sio.event
     def disconnect(sid):
         clients[sid][1].stop()
         clients[sid][0].service.close()
-        clients.pop(sid)
 
-    s = eventlet.listen(('localhost', 3000))
-    [ip, port] = s.getsockname()
-    print('--port', port)
-    eventlet.wsgi.server(s, app)
+        del clients[sid]
 
+    eventlet.wsgi.server(eventlet.listen(('localhost', 5000)), app) # type: ignore
 
-async def start_quic_tunnel(service_provider: RemoteServiceDiscoveryService) -> None:
+async def start_quic_tunnel(service_provider):
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    with create_core_device_tunnel_service(service_provider, autopair=True) as service:
-        async with service.start_quic_tunnel(private_key) as tunnel_result:
-            print('UDID:', service_provider.udid)
-            print('ProductType:', service_provider.product_type)
-            print('ProductVersion:', service_provider.product_version)
-            print('Interface:', tunnel_result.interface)
-            print('--rsd', tunnel_result.address, tunnel_result.port)
+    with create_core_device_tunnel_service(service_provider, autopair=True) as tunnel_service:
+        async with tunnel_service.start_quic_tunnel(private_key) as tunnel:
+            print_device_info(service_provider)
 
-            ui = Process(target=server, args=(tunnel_result.address, tunnel_result.port))
-            ui.start()
+            process = Process(target=setup_server, args=(tunnel.address, tunnel.port))
+            process.start()
 
             while True:
-                await asyncio.sleep(.5)
+                await asyncio.sleep(0.5)
 
-
-def create_tunnel():
-    devices = get_device_list()
-    if not devices:
-        # no devices were found
-        raise Exception('NoDeviceConnectedError')
-    if len(devices) == 1:
-        # only one device found
-        rsd = devices[0]
-    else:
-        # several devices were found
-        raise Exception('TooManyDevicesConnectedError')
-
-    asyncio.run(start_quic_tunnel(rsd))
-
+def print_device_info(service_provider):
+    print('\nConnected to:')
+    print(f'UDID: {service_provider.udid}')
+    print(f'ProductType: {service_provider.product_type}')
+    print(f'ProductVersion: {service_provider.product_version}')
+    print('\n')
 
 if __name__ == '__main__':
     try:
-        create_tunnel()
+        devices = get_device_list()
+        if not devices:
+            raise Exception('NoDeviceConnectedError')
+        elif len(devices) > 1:
+            raise Exception('TooManyDevicesConnectedError')
+        asyncio.run(start_quic_tunnel(devices[0]))
     except KeyboardInterrupt:
-        pass
+        print("Program interrupted by user")
