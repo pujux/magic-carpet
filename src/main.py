@@ -22,6 +22,7 @@ def setup_server(tunnel_host, tunnel_port):
     app = socketio.WSGIApp(sio, static_files={
         '/': os.path.join(app_dir, 'index.html'),
         '/index.js': os.path.join(app_dir, 'index.js'),
+        '/style.css': os.path.join(app_dir, 'style.css'),
     })
 
     @sio.event

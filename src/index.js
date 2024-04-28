@@ -17,9 +17,16 @@ const saveConfig = (key, value) => {
 /* Configuration */
 
 const configPrefix = "kinesis-";
-const maxZoom = 19;
+const maxZoom = 18;
 const tickInterval = 1000; // 1 second
 const initialCenter = L.latLng(getConfig("latitude", 53.338228), getConfig("longitude", -6.259323));
+const searchConfig = {
+  showMarker: false,
+  showPopup: true,
+  retainZoomLevel: true,
+  autoClose: true,
+  searchLabel: "Enter address or coordinates",
+};
 
 /* Initial map setup */
 
@@ -29,12 +36,20 @@ const map = L.map("map", {
   doubleClickZoom: false,
 });
 
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+L.tileLayer("//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom,
   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
 
 const path = L.polyline([], { color: "red" }).addTo(map);
+
+const searchControl = new window.GeoSearch.GeoSearchControl({
+  provider: new window.GeoSearch.OpenStreetMapProvider(),
+  ...searchConfig,
+});
+
+map.addControl(searchControl);
+map.on("geosearch/showlocation", (result) => addMarkerOrStep({ latlng: { lat: result.location.y, lng: result.location.x } }));
 
 /* Movement and marker handlers */
 
@@ -162,32 +177,39 @@ function moveTowards(target, distance) {
 }
 
 function navigate() {
+  if (!marker) return;
+
+  if (pause) {
+    moveTowards(marker.getLatLng(), 0);
+    return;
+  }
+
   const pathLatLngs = path.getLatLngs();
+
   // if there is something to move to
   if (stepIndex < pathLatLngs.length) {
-    if (pause) {
-      moveTowards(marker.getLatLng(), 0); // stay
-    } else {
-      const stepLatlng = pathLatLngs[stepIndex];
-      // check if we're already at the goal
-      if (stepLatlng.equals(markerShadowPos)) {
-        // check if it's last step
-        if (stepIndex >= pathLatLngs.length - 1) {
-          switch (routeMode) {
-            case "loop":
-              stepIndex = 0;
-              break;
-            case "uturn":
-              path.setLatLngs(path.getLatLngs().reverse());
-              stepIndex = 0;
-              break;
-          }
-        } else {
-          stepIndex++; // proceed with next step
+    const stepLatlng = pathLatLngs[stepIndex];
+    // check if we're already at the goal
+    if (stepLatlng.equals(markerShadowPos)) {
+      // check if it's last step
+      if (stepIndex >= pathLatLngs.length - 1) {
+        switch (routeMode) {
+          case "loop":
+            stepIndex = 0;
+            break;
+          case "uturn":
+            path.setLatLngs(path.getLatLngs().reverse());
+            stepIndex = 0;
+            break;
+          default:
+            moveTowards(marker.getLatLng(), 0);
+            break;
         }
       } else {
-        moveTowards(stepLatlng, (randomize(speed) * tickInterval) / 1000);
+        stepIndex++; // proceed with next step
       }
+    } else {
+      moveTowards(stepLatlng, (randomize(speed) * tickInterval) / 1000);
     }
   }
 }

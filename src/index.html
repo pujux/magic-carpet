@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base target="_top" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kinesis</title>
+
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.css" />
+    <link rel="stylesheet" href="./style.css" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+    <script src="https://unpkg.com/leaflet-geosearch@3.11.0/dist/bundle.min.js"></script>
+    <script src="https://unpkg.com/socket.io@4.7.2/client-dist/socket.io.min.js"></script>
+    <script src="https://unpkg.com/geolib@3.3.4/lib/index.js"></script>
+  </head>
+  <body class="h-screen w-screen">
+    <div id="map"></div>
+
+    <div
+      class="absolute text-[13px] leading-[19.5px] font-bold flex gap-4 font-['Helvetica_Neue',_Arial,_Helvetica,_sans-serif] bottom-2.5 left-2.5 z-[9999]"
+    >
+      <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+        <li>
+          <input type="checkbox" class="peer hidden" id="pauseSwitch" autocomplete="off" />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
+            for="pauseSwitch"
+            >Pause</label
+          >
+        </li>
+
+        <li>
+          <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full border-r border-[#ccc]" id="undoButton">Undo</button>
+        </li>
+
+        <li>
+          <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full" id="stopButton">Clear</button>
+        </li>
+      </ul>
+
+      <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+        <li>
+          <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice1" autocomplete="off" value="2.5" checked />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
+            for="speedChoice1"
+            >Walk</label
+          >
+        </li>
+
+        <li>
+          <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice2" autocomplete="off" value="10" />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
+            for="speedChoice2"
+            >Ride</label
+          >
+        </li>
+
+        <li>
+          <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice3" autocomplete="off" value="25" />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors"
+            for="speedChoice3"
+            >Drive</label
+          >
+        </li>
+      </ul>
+      <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+        <li>
+          <input type="radio" class="peer hidden" name="routeModeChoice" id="routeModeChoice1" autocomplete="off" value="off" checked />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
+            for="routeModeChoice1"
+            >Off</label
+          >
+        </li>
+
+        <li>
+          <input type="radio" class="peer hidden" name="routeModeChoice" id="routeModeChoice2" autocomplete="off" value="loop" />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
+            for="routeModeChoice2"
+            >Loop</label
+          >
+        </li>
+
+        <li>
+          <input type="radio" class="peer hidden" name="routeModeChoice" id="routeModeChoice3" autocomplete="off" value="uturn" />
+          <label
+            class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors"
+            for="routeModeChoice3"
+            >U-Turn</label
+          >
+        </li>
+      </ul>
+
+      <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+        <li>
+          <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full border-r border-[#ccc]" id="saveRouteButton">Save Route</button>
+        </li>
+
+        <li>
+          <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full" id="loadRouteButton">Load Route</button>
+        </li>
+      </ul>
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>

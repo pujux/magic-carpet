@@ -29,10 +29,10 @@ Have your device connected, **USB connection is required**
 Start project
 
 ```shell
-sudo python3 main.py
+sudo python3 src/main.py
 ```
 
-Browse [http://localhost:3000](http://localhost:5000)
+Browse [http://localhost:5000](http://localhost:5000)
 
 ## TODO
 
