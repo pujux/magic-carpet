@@ -12,9 +12,10 @@ import asyncio
 import eventlet
 import os
 import socketio
+import inquirer
 
-def setup_server(tunnel_host, tunnel_port):
-    clients = {}
+def setup_server(tunnel_host, tunnel_port, port):
+    clients: dict[str, tuple[RemoteServiceDiscoveryService, LocationSimulation]] = {}
     
     sio = socketio.Server(cors_allowed_origins='*')
     app_dir = os.path.dirname(__file__)
@@ -34,7 +35,8 @@ def setup_server(tunnel_host, tunnel_port):
         dvt_proxy.perform_handshake()
         location_sim = LocationSimulation(dvt_proxy)
 
-        clients[sid] = [rsd, location_sim]
+        clients[sid] = (rsd, location_sim)
+        return rsd.udid;
 
     @sio.event
     def location(sid, data):
@@ -43,21 +45,26 @@ def setup_server(tunnel_host, tunnel_port):
         clients[sid][1].simulate_location(lat, long)
 
     @sio.event
+    def info(sid):
+        rsd = clients[sid][0]
+        return f'{rsd.udid} | {rsd.product_type} | {rsd.product_version}'
+
+    @sio.event
     def disconnect(sid):
         clients[sid][1].stop()
         clients[sid][0].service.close()
 
         del clients[sid]
 
-    eventlet.wsgi.server(eventlet.listen(('localhost', 5000)), app) # type: ignore
+    eventlet.wsgi.server(eventlet.listen(('localhost', port)), app) # type: ignore
 
-async def start_quic_tunnel(service_provider):
+async def start_quic_tunnel(service_provider, port):
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     with create_core_device_tunnel_service(service_provider, autopair=True) as tunnel_service:
         async with tunnel_service.start_quic_tunnel(private_key) as tunnel:
             print_device_info(service_provider)
 
-            process = Process(target=setup_server, args=(tunnel.address, tunnel.port))
+            process = Process(target=setup_server, args=(tunnel.address, tunnel.port, port))
             process.start()
 
             while True:
@@ -73,10 +80,27 @@ def print_device_info(service_provider):
 if __name__ == '__main__':
     try:
         devices = get_device_list()
+        device = None
+        port = 5000
         if not devices:
             raise Exception('NoDeviceConnectedError')
+        elif len(devices) == 1:
+            device = devices[0]
         elif len(devices) > 1:
-            raise Exception('TooManyDevicesConnectedError')
-        asyncio.run(start_quic_tunnel(devices[0]))
+            questions = [
+                inquirer.List(name='deviceId',
+                            message="Choose a device",
+                            choices=[(f'{d.udid} | {d.product_type} | {d.product_version}', d.udid) for d in devices],
+                        ),
+                inquirer.Text(name='port', message='Choose a port', validate=lambda _, c: c.isdigit())
+            ]
+            answers = inquirer.prompt(questions)
+            device = next((d for d in devices if d.udid == answers['deviceId']), None) # type: ignore
+            port = int(answers['port']) # type: ignore
+        if not device:
+            raise Exception('InvalidDeviceChoiceError')
+
+        print(f'Connecting to: {device.udid}')
+        asyncio.run(start_quic_tunnel(device, port))
     except KeyboardInterrupt:
         print("Program interrupted by user")

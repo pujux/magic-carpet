@@ -1,6 +1,14 @@
 const socket = io();
 let savedRoutes = {};
 
+socket.on("connect", () => {
+  socket.emit("info", (info) => {
+    document.querySelector(".leaflet-control-container > .leaflet-top.leaflet-left").innerHTML += `
+    <div class="leaflet-bar leaflet-control">
+    <a class="text-[15px] color-[#555]" title="${info}" href="#">i</a></div>`;
+  });
+});
+
 /* Utility functions */
 
 const randomFactor = 0.2;

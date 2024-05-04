@@ -4,7 +4,7 @@
     <base target="_top" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Kinesis</title>
+    <title>Magic Carpet</title>
 
     <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -26,9 +26,9 @@
     </div>
 
     <div class="absolute flex gap-4 bottom-2.5 left-2.5 z-[9999]">
-      <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+      <ul class="flex overflow-hidden bg-white border-2 rounded border-black/20 bg-clip-padding">
         <li>
-          <input type="checkbox" class="peer hidden" id="lockPathSwitch" />
+          <input type="checkbox" class="hidden peer" id="lockPathSwitch" />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
             for="lockPathSwitch"
@@ -45,9 +45,9 @@
         </li>
       </ul>
 
-      <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+      <ul class="flex overflow-hidden bg-white border-2 rounded border-black/20 bg-clip-padding">
         <li>
-          <input type="checkbox" class="peer hidden" id="pauseSwitch" autocomplete="off" />
+          <input type="checkbox" class="hidden peer" id="pauseSwitch" autocomplete="off" />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
             for="pauseSwitch"
@@ -56,7 +56,7 @@
         </li>
 
         <li>
-          <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice1" autocomplete="off" value="2.5" checked />
+          <input type="radio" class="hidden peer" name="speedChoice" id="speedChoice1" autocomplete="off" value="2.5" checked />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
             for="speedChoice1"
@@ -65,7 +65,7 @@
         </li>
 
         <li>
-          <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice2" autocomplete="off" value="10" />
+          <input type="radio" class="hidden peer" name="speedChoice" id="speedChoice2" autocomplete="off" value="10" />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
             for="speedChoice2"
@@ -74,7 +74,7 @@
         </li>
 
         <li>
-          <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice3" autocomplete="off" value="25" />
+          <input type="radio" class="hidden peer" name="speedChoice" id="speedChoice3" autocomplete="off" value="25" />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
             for="speedChoice3"
@@ -83,7 +83,7 @@
         </li>
 
         <li>
-          <input type="radio" class="peer hidden" name="speedChoice" id="speedChoice4" autocomplete="off" value="0" />
+          <input type="radio" class="hidden peer" name="speedChoice" id="speedChoice4" autocomplete="off" value="0" />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors"
             for="speedChoice4"
@@ -91,9 +91,9 @@
           >
         </li>
       </ul>
-      <ul class="flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+      <ul class="flex overflow-hidden bg-white border-2 rounded border-black/20 bg-clip-padding">
         <li>
-          <input type="radio" class="peer hidden" name="routeModeChoice" id="routeModeChoice1" autocomplete="off" value="off" checked />
+          <input type="radio" class="hidden peer" name="routeModeChoice" id="routeModeChoice1" autocomplete="off" value="off" checked />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
             for="routeModeChoice1"
@@ -102,7 +102,7 @@
         </li>
 
         <li>
-          <input type="radio" class="peer hidden" name="routeModeChoice" id="routeModeChoice2" autocomplete="off" value="loop" />
+          <input type="radio" class="hidden peer" name="routeModeChoice" id="routeModeChoice2" autocomplete="off" value="loop" />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors border-r border-[#ccc]"
             for="routeModeChoice2"
@@ -111,7 +111,7 @@
         </li>
 
         <li>
-          <input type="radio" class="peer hidden" name="routeModeChoice" id="routeModeChoice3" autocomplete="off" value="uturn" />
+          <input type="radio" class="hidden peer" name="routeModeChoice" id="routeModeChoice3" autocomplete="off" value="uturn" />
           <label
             class="px-3 py-1.5 cursor-pointer hover:bg-[#f4f4f4] block h-full peer-checked:bg-blue-500 peer-checked:text-white transition-colors"
             for="routeModeChoice3"
@@ -121,7 +121,7 @@
       </ul>
 
       <div class="relative">
-        <ul class="peer flex overflow-hidden bg-white border-2 border-black/20 bg-clip-padding rounded">
+        <ul class="flex overflow-hidden bg-white border-2 rounded peer border-black/20 bg-clip-padding">
           <li>
             <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full border-r border-[#ccc]" id="saveRouteButton">Save Route</button>
           </li>
