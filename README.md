@@ -6,7 +6,7 @@ Built with `pymobiledevice3` and `leaflet`.
 
 ## How to use
 
-#### Requirements
+### Requirements
 
 - Python version **3.11.x**
 - iOS Device in [developer mode](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device)
@@ -24,7 +24,7 @@ Install python dependencies
 pip3 install -r requirements.txt
 ```
 
-Have your device connected, **USB connection is required**
+Have your device connected (**USB connection is required**)
 
 Start project
 
@@ -34,13 +34,19 @@ sudo python3 src/main.py
 
 Browse [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
+### Multi-Device Support
+
+If you have multiple devices connected, you will be prompted to choose a device you want to connect to and the port the UI should be served from. 
+Make sure to only use unused ports as no check for that is in place.
+
 ## Features
 
 - [x] Run with one-command
+- [x] Multi-Device Support
+- [x] Saved routes
+- [x] Address search
 - [x] Choose between 3 speeds & teleport
 - [x] Location display
-- [x] Address search
 - [x] Realistic movement
 - [x] Different route modes (U-Turn, Loop)
 - [x] Persistent zoom and map center
-- [x] Saved routes
