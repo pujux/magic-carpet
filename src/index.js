@@ -186,6 +186,35 @@ function loadRoute(routeName) {
   }
 }
 
+function loadRouteFromGpx(event) {
+  const input = event.target.files[0];
+  if (input) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const xml = e.target.result;
+        const gpx = new DOMParser().parseFromString(xml, "text/xml");
+        var tracks = gpx.getElementsByTagName("trk");
+        const route = [];
+        for (var i = 0; i < tracks.length; i++) {
+          var segments = tracks[i].getElementsByTagName("trkseg");
+          for (var j = 0; j < segments.length; j++) {
+            var points = segments[j].getElementsByTagName("trkpt");
+            for (var k = 0; k < points.length; k++) {
+              var lat = parseFloat(points[k].getAttribute("lat"));
+              var lon = parseFloat(points[k].getAttribute("lon"));
+              route.push({ lat, lon });
+            }
+          }
+        }
+        path.setLatLngs(route);
+        map.fitBounds(path.getBounds());
+      };
+      reader.readAsText(input);
+  } else {
+      console.log("Error reading file.");
+  }
+}
+
 function deleteStep() {
   const pathLatLngs = path.getLatLngs();
   if (stepIndex < pathLatLngs.length - 1) {
