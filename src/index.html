@@ -123,9 +123,14 @@
       <div class="relative">
         <ul class="flex overflow-hidden bg-white border-2 rounded peer border-black/20 bg-clip-padding">
           <li>
-            <button type="button" class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full border-r border-[#ccc]"
-              id="loadGpxButton" onclick="document.getElementById('gpxFileInput').click()">Load GPX</button>
-            <input type="file" id="gpxFileInput" style="display: none;" accept=".gpx" onchange="loadRouteFromGpx(event)">
+            <button
+              type="button"
+              class="px-3 py-1.5 hover:bg-[#f4f4f4] block h-full border-r border-[#ccc]"
+              onclick="document.getElementById('gpxFileInput').click()"
+            >
+              Load GPX
+            </button>
+            <input type="file" id="gpxFileInput" class="sr-only" accept=".gpx" onchange="loadRouteFromGpx(event)" />
           </li>
 
           <li>
