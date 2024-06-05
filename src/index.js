@@ -3,9 +3,8 @@ let savedRoutes = {};
 
 socket.on("connect", () => {
   socket.emit("info", (info) => {
-    document.querySelector(".leaflet-control-container > .leaflet-top.leaflet-left").innerHTML += `
-    <div class="leaflet-bar leaflet-control">
-    <a class="text-[15px] color-[#555]" title="${info}" href="#">i</a></div>`;
+    document.getElementById("infoHint").innerHTML += `
+    <a class="text-[15px] color-[#555] flex items-center justify-center w-7 h-7" title="${info}" href="#">i</a>`;
   });
 });
 

@@ -36,7 +36,7 @@ Browse [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 ### Multi-Device Support
 
-If you have multiple devices connected, you will be prompted to choose a device you want to connect to and the port the UI should be served from. 
+If you have multiple devices connected, you will be prompted to choose a device you want to connect to and the port the UI should be served from.
 Make sure to only use unused ports as no check for that is in place.
 
 ## Features
@@ -50,3 +50,22 @@ Make sure to only use unused ports as no check for that is in place.
 - [x] Realistic movement
 - [x] Different route modes (U-Turn, Loop)
 - [x] Persistent zoom and map center
+
+## Contributing
+
+Feel free to contribute to the repository but make sure to:
+
+- keep code style the same
+- give your PR a meaningful title and description
+
+### Development Guide
+
+#### Updating the UI
+
+When adding or modifying classes in `index.html` you should regenerate the styles using this command:
+
+```bash
+npx tailwindcss -i ./input.css -o ./src/style.css --minify
+```
+
+---
