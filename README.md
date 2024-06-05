@@ -44,6 +44,7 @@ Make sure to only use unused ports as no check for that is in place.
 - [x] Run with one-command
 - [x] Multi-Device Support
 - [x] Saved routes
+- [x] Load route from GPX file
 - [x] Address search
 - [x] Choose between 3 speeds & teleport
 - [x] Location display
